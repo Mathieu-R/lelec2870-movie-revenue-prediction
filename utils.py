@@ -7,23 +7,40 @@ from pandera.typing import Series, DataFrame
 
 import ast
 
-def extract_embeddings_features(embeddings: np.ndarray) -> DataFrame:
-	# embeddings are encoded as string representation of vector
-	# convert these into list
-	applyall = np.vectorize(ast.literal_eval)
-	embeddings_array = applyall(embeddings)
+from embeddings_dimension_reduction import StandardScaler
 
-	return embeddings_array
+def extract_embeddings_features(embeddings: Series):
+	"""
+	Args:
+		embeddings (np.ndarray): array of string representation of feature vectors.
+	Return:
+		(np.ndarray): feature matrix of dimension (n_observations, n_features)
+	"""
+	n = embeddings.shape[0]
+	embeddings_matrix = []
 
-def reduce_embeddings_dimension(embeddings_array: np.ndarray, prefix: str, total_variance_explained: float = 0.95) -> DataFrame: 
+	for i in range(n):
+		# embeddings are encoded as string representation of vector
+		# convert these into list
+		feature_vector = ast.literal_eval(embeddings.iloc[i])
+		print(feature_vector)
+		embeddings_matrix.append(feature_vector)
+
+	print(embeddings_matrix)
+	return embeddings_matrix
+
+def reduce_embeddings_dimension(embeddings_array: list, prefix: str, total_variance_explained: float = 0.95) -> DataFrame: 
 	print(f"reducing embeddings dimension with PCA keeping {total_variance_explained * 100}% of variance explained...")
 	pca = PCA(n_components=total_variance_explained)
 
-	embeddings_reduced_array = pca.fit_transform(embeddings_array)
-	print(f"successfully reduced from {embeddings_array.shape[1]} features to {embeddings_reduced_array.shape[1]} features")
+	scaler = StandardScaler()
+	scaler.fit_transform()
 
-	#embeddings_reduced_df = pd.DataFrame(embeddings_reduced, index = embeddings_df.index)
-	#embeddings_reduced_df = embeddings_reduced_df.add_prefix(prefix)
+	embeddings_reduced_array = pca.fit_transform(embeddings_array)
+	print(f"successfully reduced from {len(embeddings_array[0])} features to {embeddings_reduced_array.shape[1]} features")
+
+	embeddings_reduced_df = pd.DataFrame(embeddings_reduced, index = embeddings_df.index)
+	embeddings_reduced_df = embeddings_reduced_df.add_prefix(prefix)
 
 	return embeddings_reduced_array
 
