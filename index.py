@@ -258,6 +258,5 @@ class MovieRevenuePredictor():
 
 		return scaler.inverse_transform(train_embeddings_df), scaler.inverse_transform(test_embeddings_df)
 
-
 if __name__ == "__main__":
 	predictor = MovieRevenuePredictor()
