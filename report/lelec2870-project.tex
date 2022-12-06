@@ -1,0 +1,29 @@
+\documentclass[10pt, a4paper, nofootinbib]{scrartcl}
+
+\newcommand{\pagetitle}{LELEC2870 : predicting movie's revenues} 
+
+\input{../header}
+\input{../preamble}
+
+\pagenumbering{arabic}
+
+\begin{document}
+
+\input{sections/cover-page.tex}
+
+\setcounter{page}{1}
+
+\input{sections/intro.tex}
+\input{sections/eda.tex}
+\input{sections/preprocessing.tex}
+\input{sections/feature_selection.tex}
+\input{sections/model_selection.tex}
+\input{sections/conclusion.tex}
+
+\newpage
+
+\appendix
+
+\input{sections/appendix.tex}
+
+\end{document}

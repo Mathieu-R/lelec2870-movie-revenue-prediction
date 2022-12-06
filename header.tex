@@ -1,0 +1,163 @@
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{amsthm}
+\usepackage[T1]{fontenc}
+\usepackage[french]{babel} % traduction
+\usepackage[usenames,svgnames,dvipsnames]{xcolor}
+\usepackage[hang, small, labelfont=bf, up, textfont=it]{caption} % custom caption under figures
+%\usepackage{bookmark} 
+\usepackage{booktabs} % beautiful tables
+%\usepackage[thicklines]{cancel} % cancel terms in equation
+%\usepackage{color} % colors in box (theorems,...)
+%\usepackage{enumerate}
+\usepackage{float}
+\usepackage{framed} % box around text
+\usepackage{fancyhdr} % header
+%\usepackage{fancyvrb}
+\usepackage{mathtools}
+\usepackage{mathrsfs}
+\usepackage[parfill]{parskip} % avoid bad alignment in paragraphs
+\usepackage{pgfplots} % plot in tikz
+%\usepackage[arrowdel]{physics} % physics helpers (BUGGY)
+\usepackage{derivative}
+\usepackage{braket}
+%\usepackage{setspace}
+\usepackage{siunitx}
+\usepackage{silence} % silence useless warnings
+%\usepackage{systeme} % system of equations
+\usepackage{tikz}
+\usepackage{tkz-euclide}
+\usepackage{tikz-3dplot}
+\usepackage{units} % Non-stacked fractions and better unit spacing
+\usepackage{xspace} % prints a trailing space in a smart way.
+\usepackage{minted} % print code 
+%\usepackage[clean]{svg} % svg
+%\usepackage[off]{svg-extract}
+\usepackage{relsize}
+%\usepackage{subcaption}
+\usepackage{eurosym} % euro currency
+
+\usemintedstyle{monokay}
+
+% \titlespacing*{\section}{0pt}{5.5ex plus 1ex minus .2ex}{4.3ex plus .2ex}
+% \titlespacing*{\subsection}{0pt}{5.5ex plus 1ex minus .2ex}{4.3ex plus .2ex}
+
+\usepackage{enumitem}
+\setlist{nosep,after=\vspace{\baselineskip}}
+% bullet instead of dash for items
+\AtBeginDocument{\def\labelitemi{$\bullet$}}
+
+\pgfplotsset{compat=1.12}
+\sisetup{locale = FR}
+
+\usepackage[marginparwidth=2cm]{geometry}
+\geometry{
+	paper=a4paper,
+	inner=2.0cm,
+	outer=3.0cm,
+	bindingoffset=.5cm, 
+	top=3.5cm, 
+	bottom=3.5cm
+}
+
+\usepackage{graphicx}
+\setkeys{Gin}{width=\linewidth,totalheight=\textheight,keepaspectratio}
+%\graphicspath{{figures/}}
+
+% Default images settings
+\setkeys{Gin}{width=\linewidth, totalheight=\textheight, keepaspectratio}
+
+%---------------------------------------------------
+% BUGGY PACKAGES THAT NEED TO BE LOADED AT THE END
+%---------------------------------------------------
+
+% colored hyperlink
+% load hyperref at the end to avoid conflicts
+\usepackage[colorlinks]{hyperref} % colored ref
+% % cleverref must be loaded after hyperref
+% \usepackage{cleveref} % create ref
+
+\hypersetup{
+  colorlinks=true,
+  linkcolor=blue,
+  filecolor=blue,
+  citecolor=black,
+  urlcolor=cyan
+}
+
+% conditions for equations
+% https://tex.stackexchange.com/questions/95838/how-to-write-a-perfect-equation-parameters-description
+\newenvironment{conditions}
+  {\par\vspace{\abovedisplayskip}\noindent\begin{tabular}{>{$}l<{$} @{${}={}$} l}}
+	{\end{tabular}\par\vspace{\belowdisplayskip}}
+	
+\newenvironment{conditions*}
+  {\par\vspace{\abovedisplayskip}\noindent
+   \tabularx{\columnwidth}{>{$}l<{$} @{${}={}$} >{\raggedright\arraybackslash}X}}
+  {\endtabularx\par\vspace{\belowdisplayskip}}
+
+%----------------
+% FIX
+%----------------
+
+\setlength{\headheight}{14.5pt}
+
+% increase vertical space for aligned equations
+\setlength{\jot}{7pt}
+
+% Filter warnings issued by package biblatex starting with "Patching footnotes failed"
+\WarningFilter{biblatex}{Patching footnotes failed}
+
+%----------------------
+%	COMMANDS
+%----------------------
+
+% commands shortcuts
+\newcommand{\mb}{\mathbb}
+\newcommand{\R}{\mb{R}}
+\newcommand{\Z}{\mb{Z}}
+\newcommand{\N}{\mb{N}}
+\newcommand{\C}{\mb{C}}
+\newcommand{\A}{\mb{A}} % hypersphere area
+\newcommand{\V}{\mb{V}} % hypersphere volume
+\newcommand{\dS}{\cdot d\vec{S}}
+\newcommand{\lag}{\mathcal{L}}
+\newcommand{\ham}{\mathcal{H}}
+\newcommand{\Mod}[1]{\ \mathrm{mod}\ #1}
+\newcommand{\res}{\text{res}}
+\newcommand{\ind}{\text{ind}}
+\newcommand{\carg}{\text{arg}}
+
+\newcommand{\vb}[1]{\mathbf{\vec{#1}}} % bold vectors
+\newcommand{\vd}[1]{\dot{\vec{#1}}} 
+\newcommand{\vdd}[1]{\ddot{\vec{#1}}}
+
+% norm
+\newcommand{\bignorm}[1]{\left\lVert#1\right\rVert}
+
+% smaller overline (line above variable)
+\newcommand{\overbar}[1]{\mkern 1.5mu\overline{\mkern-1.5mu#1\mkern-1.5mu}\mkern 1.5mu}
+
+% prints an asterisk that takes up no horizontal space.
+% useful in tabular environments.
+\newcommand{\hangstar}{\makebox[0pt][l]{*}}
+
+% Prints argument within hanging parentheses (i.e., parentheses that take
+% up no horizontal space). Useful in tabular environments.
+\newcommand{\hangp}[1]{\makebox[0pt][r]{(}#1\makebox[0pt][l]{)}}
+
+% cancel terms with color
+% \newcommand{\ccancel}[2]{\renewcommand{\CancelColor}{\color{#2}}\bcancel{#1}}
+
+% small parallel 
+\makeatletter
+\newcommand{\newparallel}{\mathrel{\mathpalette\new@parallel\relax}}
+\newcommand{\new@parallel}[2]{%
+  \begingroup
+  \sbox\z@{$#1T$}% get the height of an uppercase letter
+  \resizebox{!}{\ht\z@}{\raisebox{\depth}{$\m@th#1/\mkern-5mu/$}}%
+  \endgroup
+}
+\makeatother
+
+\renewcommand*\contentsname{Table des matières}

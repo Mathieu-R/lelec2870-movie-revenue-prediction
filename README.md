@@ -7,6 +7,11 @@ Datasets can be downloaded from this link: https://drive.google.com/drive/folder
 ## Libraries
 For this project, we use basic datascience python libraries such as `pandas`, `matplotlib`, `sklearn`,... that are already installed with `conda`. 
 
+We also use `category_encoders` package that implement a set of transformers for encoding categorical variables into numeric.
+```bash 
+$ conda install -c conda-forge category_encoders
+```
+
 We also use `skorch` which is an implementation of `pytorch` using a similar syntax as `sklearn`.
 You can install this library in `conda` with the following command:
 
