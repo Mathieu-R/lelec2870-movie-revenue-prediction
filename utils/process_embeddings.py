@@ -2,7 +2,7 @@ import numpy as np
 import pandas as pd
 
 from sklearn.preprocessing import StandardScaler
-from sklearn.decomposition import PCA
+from sklearn.decomposition import PCA, KernelPCA
 
 from tqdm import tqdm_notebook
 
@@ -28,7 +28,7 @@ def extract_embeddings_features(embeddings):
 
 	return embeddings_matrix
 
-def pca_on_embeddings(train_embeddings_matrix, test_embeddings_matrix, train_index, test_index, prefix, total_variance_explained = 0.95, run_pca=True):
+def pca_on_embeddings(train_embeddings_matrix, test_embeddings_matrix, train_index, test_index, prefix, total_variance_explained = 0.95, run_pca=True, non_linear=True):
 	scaler = StandardScaler()
 
 	n_features_before_pca = len(train_embeddings_matrix[0])
@@ -38,7 +38,10 @@ def pca_on_embeddings(train_embeddings_matrix, test_embeddings_matrix, train_ind
 	test_embeddings_matrix = scaler.transform(test_embeddings_matrix)
 
 	if run_pca:
-		pca = PCA(n_components=total_variance_explained)
+		if non_linear:
+			pca = KernelPCA(n_components=10)
+		else:
+			pca = PCA(n_components=total_variance_explained)
 
 		train_embeddings_matrix = pca.fit_transform(train_embeddings_matrix)
 		test_embeddings_matrix = pca.transform(test_embeddings_matrix)

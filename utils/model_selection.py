@@ -3,6 +3,8 @@ import matplotlib.pyplot as plt
 
 from sklearn.model_selection import train_test_split, KFold, GridSearchCV, RandomizedSearchCV, cross_val_predict, validation_curve, learning_curve
 
+from skopt import BayesSearchCV
+
 from sklearn.linear_model import LinearRegression, LassoCV
 from sklearn.neighbors import KNeighborsRegressor
 from sklearn.neural_network import MLPRegressor
@@ -38,6 +40,14 @@ def perform_random_search(model, hyperparameters, X_train, y_train, X_test, y_te
 	best_score = random_search.score(X_test, y_test)
 
 	return random_search.best_estimator_, random_search.best_params_, best_score
+
+def perform_bayesian_search(model, hyperparameters, n_iter, X_train, y_train, X_test, y_test, kf, scorer = "neg_mean_squared_error"):
+	bayesion_search = BayesSearchCV(estimator=model, search_spaces=hyperparameters, n_iter=n_iter, cv=kf, scoring=scorer, n_jobs=-1)
+
+	bayesion_search.fit(X_train, y_train)
+	best_score = bayesion_search.score(X_test, y_test)
+
+	return bayesion_search.best_estimator_, bayesion_search.best_params_, best_score
 
 # to know how many data you need 
 def evaluate_model(model, model_name, X_train, y_train, X_test, y_test, kf, scorer):
@@ -99,9 +109,10 @@ def compare_models(models, X_train, y_train, X_test, y_test, kf, scorer):
 	print("Linear Regression RMSE: {:.3f}".format(lr_score))
 
 	for model_name, model_params in models.items():
-		best_estimator, best_params, best_score = perform_grid_search(
+		best_estimator, best_params, best_score = perform_bayesian_search(
 			model=model_params["instance"],
 			hyperparameters=model_params["hyperparameters"],
+			n_iter=model_params["n_iter"],
 			X_train=X_train, 
 			y_train=y_train, 
 			X_test=X_test, 
