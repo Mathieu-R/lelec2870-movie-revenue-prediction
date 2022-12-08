@@ -1,0 +1,15 @@
+\section{Feature selection}
+
+Even if we run a PCA on the embeddings, we still have a lot of features in our dataset. We performed feature selection in order to decrease the number of variables in our dataset.
+
+\subsection{Correlation and mutual information}
+
+Since we do not only deal with linear models we cannot only rely on the correlation matrix to select features because it cannot detect any nonlinear relationships between variables. We still decided to consider it because it can be useful for the linear regression. 
+
+The mutual information can detect nonlinear relationship between variables and therefore is a filter of choice for nonlinear models. 
+
+Since we had to deal with hundred of features (even after running a PCA), we did not investigate the correlation matrix and the mutual information matrix in details. Instead, we choosed to keep a certain percentage of most significant features.
+
+We also decided to implement a \textbf{recursive feature elimination} (RFE) method even though the biggest downside of it is that it is computationally intensive. The idea behind RFE is to start with all the features and then successively removing one feature at at time until reaching a desired number of features. 
+
+% TODO: finish 
