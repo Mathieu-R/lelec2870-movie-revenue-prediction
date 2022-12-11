@@ -12,7 +12,13 @@ We use `category_encoders` package that implements a set of transformers for enc
 $ conda install -c conda-forge category_encoders
 ```
 
-We also use `scikit-optimize` package that implements Bayesian Search
+We also use `tikzplotlib` to save our matplotlib figures in a Latex compatible format.
+```bash
+$ conda install -c conda-forge tikzplotlib
+```
+
+We also use `mlxtend` package that implements RBF Kernel PCA
 ```bash 
-$ conda install -c conda-forge scikit-optimize
+$ conda install mlxtend
 ``` 
+

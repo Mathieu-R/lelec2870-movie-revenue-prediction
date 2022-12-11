@@ -4,6 +4,8 @@ import pandas as pd
 from sklearn.preprocessing import StandardScaler
 from sklearn.decomposition import PCA, KernelPCA
 
+from mlxtend.feature_extraction import RBFKernelPCA as KPCA
+
 from tqdm import tqdm_notebook
 
 import ast
@@ -39,7 +41,7 @@ def pca_on_embeddings(train_embeddings_matrix, test_embeddings_matrix, train_ind
 
 	if run_pca:
 		if non_linear:
-			pca = KernelPCA(n_components=10)
+			pca = KernelPCA(n_components=total_variance_explained)
 		else:
 			pca = PCA(n_components=total_variance_explained)
 

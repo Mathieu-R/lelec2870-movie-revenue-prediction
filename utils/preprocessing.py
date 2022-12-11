@@ -54,8 +54,24 @@ def one_hot_encode_genres_feature(df):
 	# drop old genres column
 	df.drop("genres", axis=1, inplace=True)
 
-	print("[X] One-Hot encoding")
+	print("[X] One-Hot encoding genres feature")
 	return df
+
+def one_hot_encode_studio_feature(df):
+	# frequency of each studio
+	studio_freq = df["studio"].value_counts(normalize=True, ascending=True)
+	print(studio_freq)
+
+	# replace each studio by its frequency
+	mapping = df["studio"].map(studio_freq)
+	print(mapping)
+
+	# replace studio representing less than 1% of all studios by "other"
+	df["studio"] = df["studio"].mask(mapping < 0.01, "other")
+	print(df["studio"])
+
+	print("[X] One-Hot encoding studio feature")
+	return pd.get_dummies(df, columns=["studio"], prefix="studio")
 
 def label_encode_studio_feature(df):
 	label_encoder_studio = LabelEncoder()
@@ -64,8 +80,6 @@ def label_encode_studio_feature(df):
 
 	print("[X] Label encoding")
 	return df
-
-
 
 def count_encode_studio_feature(df):
 	count_encoder_studio = ce.CountEncoder()

@@ -20,8 +20,20 @@ from sklearn.feature_selection import RFE
 from sklearn.linear_model import LassoCV
 from sklearn.ensemble import RandomForestRegressor, GradientBoostingRegressor
 
+def get_discrete_features_mask(X_train):
+	CONTINUOUS_FEATURES = ["ratings", "n_votes", "production_year", "runtime", "release_year","studio"]
+	discrete_features_mask = []
+
+	for column in X_train.columns:
+		discrete_features_mask.append(column not in CONTINUOUS_FEATURES)
+
+	return discrete_features_mask
+
 def select_features_correlation(X_train, y_train, X_test, percentile=80):
+	print("-" * 25)
 	print("FEATURE SELECTION (CORRELATION MATRIX)...")
+	print("-" * 25)
+
 	# select k best features according to correlation matrix
 	percentile_best = SelectPercentile(score_func=f_regression, percentile=percentile)
 	X_train_filtered = percentile_best.fit_transform(X_train, y_train)
@@ -36,8 +48,52 @@ def select_features_correlation(X_train, y_train, X_test, percentile=80):
 	
 	return X_train_filtered, X_test_filtered
 
+def get_mutual_information_matrix(X_train):
+	p = len(X_train.columns)
+	
+	MI_matrix = np.zeros((p,p))
+
+	for i in range(p):
+		for j in range(p):
+			# triangular matrix
+			if i < j:
+				continue
+			# put 1 in diagonal to avoid dividing by 0 when normalizing
+			elif i == j:
+				MI_matrix[i,j] = 1
+			# print(i,j)
+			# # if 2 features are discretes
+			# if discrete_features[i] and discrete_features[j]:
+			# 	MI_matrix[i,j] = mutual_info_score(X_train.iloc[:,i], X_train.iloc[:,j])
+			# # if 1 feature is discerte
+			# elif not discrete_features[i] and discrete_features[j]:
+			# 	MI_matrix[i,j] = mutual_info_classif(X_train.iloc[:,i].to_frame(), X_train.iloc[:,j], discrete_features=[False])[0]
+			# elif discrete_features[i] and not discrete_features[j]:
+			# 	MI_matrix[i,j] = mutual_info_classif(X_train.iloc[:,j].to_frame(), X_train.iloc[:,i], discrete_features=[False])[0]
+			# # if 0 feature are discretes
+			# else:
+			else:
+				MI_matrix[i,j] = mutual_info_regression(X_train.iloc[:,i].to_frame(), X_train.iloc[:,j], discrete_features=[False])[0]
+	return MI_matrix
+
+def normalize_mutual_information_matrix(MI_matrix):
+	p = len(MI_matrix[0])
+
+	# normalize between 0 and 1
+	diag = np.copy(np.diag(MI_matrix))
+	for i in range(p):
+		for j in range(p):
+			if i < j:
+				continue 
+			MI_matrix[i,j] = MI_matrix[i,j] / np.sqrt(diag[i] * diag[j])
+	
+	return MI_matrix
+
 def select_features_MI(X_train, y_train, X_test, percentile=80):
+	print("-" * 25)
 	print("FEATURE SELECTION (MUTUAL INFORMATION)...")
+	print("-" * 25)
+	
 	# select k best features according to MI
 	percentile_best = SelectPercentile(score_func=mutual_info_regression, percentile=percentile)
 	X_train_filtered = percentile_best.fit_transform(X_train, y_train)
@@ -53,7 +109,10 @@ def select_features_MI(X_train, y_train, X_test, percentile=80):
 	return X_train_filtered, X_test_filtered
 
 def select_features_RFE(X_train, y_train, X_test):
+	print("-" * 25)
 	print("FEATURE SELECTION (RANDOM FEATURE ELIMINATION)...")
+	print("-" * 25)
+
 	lcv = LassoCV()
 	lcv.fit(X_train, y_train)
 

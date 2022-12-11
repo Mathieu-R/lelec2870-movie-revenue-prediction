@@ -1,15 +1,27 @@
 \section{Feature selection}
 
-Even if we run a PCA on the embeddings, we still have a lot of features in our dataset. We performed feature selection in order to decrease the number of variables in our dataset.
+Even if we run a PCA on the embeddings, we still have a lot of features in our dataset. We performed feature selection in order to decrease the number of variables in our dataset. We investigated multiple technique to select features: correlation, mutual information and recursive feature elimination. The problem with the first one is that it is only relevant for linear models since a low correlation does not mean the absence of relationship for non-linear models. We could have selected features highly correlated with the target for the linear regression but we found that even for this model we had slightly better results with mutual information.
 
-\subsection{Correlation and mutual information}
+We first tried to remove redundant features. The idea was to check the features that are highly correlated together (\textit{above a certain treshold}) and then keep the one that had the most mutual information with the target. However we didn't find any redundant features in our dataset (at least after the PCA).
 
-Since we do not only deal with linear models we cannot only rely on the correlation matrix to select features because it cannot detect any nonlinear relationships between variables. We still decided to consider it because it can be useful for the linear regression. 
+\subsection{Mutual information}
 
-The mutual information can detect nonlinear relationship between variables and therefore is a filter of choice for nonlinear models. 
+Mutual information has the advantage over correlation to detect nonlinear relationships between variables and therefore is a filter of choice for nonlinear models. The idea is that we want a minimum redundancy bewteen inputs variables and a maximum relevancy between inputs variables and the target variable.
 
-Since we had to deal with hundred of features (even after running a PCA), we did not investigate the correlation matrix and the mutual information matrix in details. Instead, we choosed to keep a certain percentage of most significant features.
+To minimize the redundancy, we computed a normalized mutual information matrix and decided to remove for each group of redundant features, the feature that share the less information with the target.
+Then to maximize the relevancy, we choosed to keep a certain percentage of most significant features (\textit{i.e. features that share the most information with target}).
 
-We also decided to implement a \textbf{recursive feature elimination} (RFE) method even though the biggest downside of it is that it is computationally intensive. The idea behind RFE is to start with all the features and then successively removing one feature at at time until reaching a desired number of features. 
+\begin{figure}[H]
+	\centering
+	\includegraphics{figures/MI_with_target.tex}
+	\caption{Mutual information of each feature with the target variable (revenues)}
+	\label{fig:MI_with_target}
+\end{figure}
+
+We can notice that the most relevant features are \textit{studio}, \textit{n_votes} and \textit{release_year}. There approximately $50\%$ of features that do not share information with the target and that we can drop
+
+\subsection{Wrapper method}
+
+We also tried to implement a \textbf{recursive feature elimination} (RFE). The idea behind RFE is to start with all the features and then successively removing one feature at at time until reaching a desired number of features. However, we didn't kept this method since on one hand it is computationnaly intensive and on the other hand, it very dependent on the chosen model.
 
 % TODO: finish 
