@@ -48,6 +48,33 @@ def select_features_correlation(X_train, y_train, X_test, percentile=80):
 	
 	return X_train_filtered, X_test_filtered
 
+# https://towardsdatascience.com/feature-selection-techniques-for-classification-and-python-tips-for-their-application-10c0ddd7918b
+def mrmr(X_train, y_train):
+	X_train_copy = X_train.copy()
+	y_train_copy = y_train.copy()
+
+	# relevancy of input features with the target
+	relevancies = mutual_info_regression(X_train_copy, y_train_copy)
+
+	redundancies = []
+	for index, data in X_train_copy.iteritems():
+		# redundancy of input feature "i" with all other input features
+		target = X_train_copy.loc[:, index]
+		input = X_train_copy.drop(columns=index)
+		redundancy = mutual_info_regression(input, target)
+		redundancies.append(redundancy.sum() / input.shape[1])
+	
+	# compute score
+	scores = relevancies - np.abs(redundancies)
+	
+	idx_sorted = np.argsort(scores)[::-1]
+	sorted_scores = scores[idx_sorted]
+	sorted_columns = X_train.columns[idx_sorted].values
+
+	return sorted_scores, sorted_columns
+
+
+
 def get_mutual_information_matrix(X_train):
 	p = len(X_train.columns)
 	

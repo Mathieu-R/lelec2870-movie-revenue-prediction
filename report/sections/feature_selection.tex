@@ -6,7 +6,7 @@ We first tried to remove redundant features. The idea was to check the features 
 
 \subsection{Mutual information}
 
-Mutual information has the advantage over correlation to detect nonlinear relationships between variables and therefore is a filter of choice for nonlinear models. The idea is that we want a minimum redundancy bewteen inputs variables and a maximum relevancy between inputs variables and the target variable.
+Mutual information has the advantage over correlation to detect nonlinear relationships between variables and therefore is a filter of choice for nonlinear models. Our strategy was to minimize the redundancy between inputs variables and a maximize relevancy between inputs variables and the target variable (\textit{minimum redundancy, maximum relevance}). The idea is that even if $2$ features are highly relevant, we shouldn't add both of them to our subset of features if they are highly correlated since it would increase the model complexity and could cause overfitting.
 
 To minimize the redundancy, we computed a normalized mutual information matrix and decided to remove for each group of redundant features, the feature that share the less information with the target.
 Then to maximize the relevancy, we choosed to keep a certain percentage of most significant features (\textit{i.e. features that share the most information with target}).

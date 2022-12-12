@@ -60,15 +60,12 @@ def one_hot_encode_genres_feature(df):
 def one_hot_encode_studio_feature(df):
 	# frequency of each studio
 	studio_freq = df["studio"].value_counts(normalize=True, ascending=True)
-	print(studio_freq)
 
 	# replace each studio by its frequency
 	mapping = df["studio"].map(studio_freq)
-	print(mapping)
 
 	# replace studio representing less than 1% of all studios by "other"
 	df["studio"] = df["studio"].mask(mapping < 0.01, "other")
-	print(df["studio"])
 
 	print("[X] One-Hot encoding studio feature")
 	return pd.get_dummies(df, columns=["studio"], prefix="studio")
@@ -98,8 +95,10 @@ def other_fixes(df):
 	# log-transform `n_votes` and `revenues` features to fix the skweness
 	df["n_votes"] = np.log(df["n_votes"])
 
-	if "revenues" in df:
-		df["revenues"] = np.log(df["revenues"])
+	# target variable is automatically transformed / untransformed
+	# with TransformedTargetRegressor
+	#if "revenues" in df:
+	#	df["revenues"] = np.log(df["revenues"])
 
 	# in notebook, I dropped this feature at the end of first part of preprocessing
 	# but I'm not sure why
