@@ -32,35 +32,39 @@ def preprocess_irrelevant_features(df):
 	print("[X] Removing irrelevant features")
 	return df
 
-def one_hot_encode_genres_feature(df):
-	# separate all genres into one big list of list of genres
-	genres_list = df["genres"].str.split(",").tolist()
+def one_hot_encode_genres_feature(df, X2):
+	def preprocess_genres(genre_list):
+		return str(genre_list).split(",")
 
-	unique_genres = []
+	df["genres_preprocessed"] = df["genres"].apply(lambda x: preprocess_genres(x))
+	X2["genres_preprocessed"] = X2["genres"].apply(lambda x: preprocess_genres(x))
 
-	# retrieve each genre
-	for sublist in genres_list:
-		for genre in sublist:
-			if genre not in unique_genres:
-				unique_genres.append(genre)
+	genres_dict = dict()
 
-	# sort
-	unique_genres = sorted(unique_genres)
+	for genre_list in df["genres_preprocessed"]:
+		for genre in genre_list:
+			if genre not in genres_dict:
+				genres_dict[genre] = 1
+			else:
+				genres_dict[genre] += 1
 
-	# one hot encode movies genres
-	df = df.reindex(df.columns.tolist() + unique_genres, axis=1, fill_value=0)
+	genres_df = pd.DataFrame.from_dict(genres_dict, columns=["number_of_movies"], orient="index")
+	genres_df = genres_df.sort_values(by="number_of_movies", ascending=False)
 
-	for index, row in df.iterrows():
-		for genre in row["genres"].split(","):
-			df.loc[index, genre] = 1
+	for genre in genres_df.index.values:
+		df["genre_" + genre] = df["genres_preprocessed"].apply(lambda x: 1 if genre in x else 0)
+		X2["genre_" + genre] = X2["genres_preprocessed"].apply(lambda x: 1 if genre in x else 0)
 
-	# drop old genres column
+	# drop old columns
 	df.drop("genres", axis=1, inplace=True)
+	X2.drop("genres", axis=1, inplace=True)
+	df.drop("genres_preprocessed", axis=1, inplace=True)
+	X2.drop("genres_preprocessed", axis=1, inplace=True)
 
 	print("[X] One-Hot encoding genres feature")
-	return df
+	return df, X2
 
-def one_hot_encode_studio_feature(df):
+def one_hot_encode_studio_feature(df, X2):
 	# frequency of each studio
 	studio_freq = df["studio"].value_counts(normalize=True, ascending=True)
 
@@ -68,10 +72,19 @@ def one_hot_encode_studio_feature(df):
 	mapping = df["studio"].map(studio_freq)
 
 	# replace studio representing less than 1% of all studios by "other"
-	df["studio"] = df["studio"].mask(mapping < 0.01, "other")
+	# keep a list of all kept studios
+	kept_studios = df["studio"].mask(mapping < 0.01, "other").unique()
+
+	for studio in kept_studios:
+		df["studio_" + studio] = df["studio"].apply(lambda x: 1 if studio in x else 0)
+		X2["studio_" + studio] = df["studio"].apply(lambda x: 1 if studio in x else 0)
+
+	# drop old columns
+	df.drop("studio", axis=1, inplace=True)
+	X2.drop("studio", axis=1, inplace=True)
 
 	print("[X] One-Hot encoding studio feature")
-	return pd.get_dummies(df, columns=["studio"], prefix="studio")
+	return df, X2
 
 def label_encode_studio_feature(df):
 	label_encoder_studio = LabelEncoder()

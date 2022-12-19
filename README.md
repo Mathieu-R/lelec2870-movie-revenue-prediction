@@ -8,4 +8,7 @@ Datasets can be downloaded from this link: https://drive.google.com/drive/folder
 ```
 $ conda env create -n <envname> --file environment.yml
 $ conda activate <envname>
+$ pip install jupyter (or with anaconda explorer)
+$ pip install ipywidgets widgetsnbextension pandas-profiling
+$ jupyter nbextension enable --py widgetsnbextension
 ```

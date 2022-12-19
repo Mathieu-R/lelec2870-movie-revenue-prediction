@@ -87,46 +87,69 @@ def perform_bayesian_search(model, hyperparameters, n_iter, X_train, y_train, X_
 
 	return bayesian_search.best_estimator_, bayesian_search.best_params_, -best_score
 
+class ModelSelection():
+	def __init__(self, X_train, y_train, X_test, y_test, kf, scorer) -> None:
+		self.X_train = X_train 
+		self.y_train = y_train
+		self.X_test = X_test 
+		self.y_test = y_test 
+		self.kf = kf
+		self.scorer = scorer
 
-
-def compare_models(models, X_train, y_train, X_test, y_test, kf, scorer):
-	print("-" * 25)
-	print("COMPARING MODELS...")
-	print("-" * 25)
-
-	print("+" * 25)
-	print("Linear Regression")
-	print("+" * 25)
-	
-	lr_score = linreg(X_train, y_train, X_test, y_test, kf, scorer)
-	
-	print("Linear Regression RMSE: {:.3f}".format(lr_score))
-
-	for model_name, model_params in models.items():
-		best_estimator, best_params, best_score = perform_halving_random_search(
-			model=model_params["instance"],
-			hyperparameters=model_params["hyperparameters"],
-			X_train=X_train, 
-			y_train=y_train, 
-			X_test=X_test, 
-			y_test=y_test,
-			kf=kf,
-			scorer=scorer
+		
+	def perform_bayesian_search(self, model, hyperparameters, n_iter):
+		self.bayesian_search = BayesSearchCV(
+			estimator=model, 
+			search_spaces=hyperparameters, 
+			cv=self.kf, 
+			scoring=self.scorer, 
+			refit=True,
+			n_iter=n_iter, 
+			n_jobs=-1,
+			random_state=42
 		)
 
-		print("+" * 25)
-		print(model_name)
-		print("+" * 25)
+		# def status_print(optim_results):
+		# 	# get all models tested so far
+		# 	all_models = pd.DataFrame(self.bayesian_search.cv_results_)
 
-		print(best_params)
+		# 	# get current parameters and the best parameters
+		# 	best_params = pd.Series(self.bayesian_search.best_params_)
 
-		val_param_name = model_params["validation_param"]
-		val_param_range = model_params["hyperparameters"][val_param_name]
+		# 	print('Model #{}\nBest score: {}\nBest params: {}\n'.format(
+		# 		len(all_models),
+		# 		np.round(self.bayesian_search.best_score_, 3),
+		# 		self.bayesian_search.best_params_
+		# 	))
 
-		evaluate_model(best_estimator, model_name, X_train, y_train, X_test, y_test, kf, scorer)
-		validate_model(best_estimator, model_name, val_param_name, val_param_range, X_train, y_train, X_test, y_test, kf, scorer)
 
-		print("{} RMSE: {:.3f}".format(model_name, best_score))
+		self.bayesian_search.fit(self.X_train, self.y_train)
+		best_score = self.bayesian_search.score(self.X_test, self.y_test)
+
+		print(best_score)
+
+		return self.bayesian_search.best_estimator_, self.bayesian_search.best_params_, -best_score
+
+	
+	def test_model(self, model, name):
+		best_estimator, best_params, best_score = perform_bayesian_search(
+			model=model["instance"], 
+			hyperparameters=model["hyperparameters"], 
+			n_iter=model["n_iter"],
+			X_train=self.X_train, 
+			y_train=self.y_train, 
+			X_test=self.X_test, 
+			y_test=self.y_test, 
+			kf=self.kf,
+			scorer=self.scorer
+		)
+
+		val_param_name = model["validation_param"]
+		val_param_range = model["hyperparameters"][val_param_name]
+
+		print("{} RMSE: {:.3f}".format(name, best_score))
+
+		return best_estimator, best_params, best_score
 
 def test_model(model, name, X_train, y_train, X_test, y_test, kf, scorer):
 	print(model["instance"])
@@ -154,65 +177,41 @@ def test_model(model, name, X_train, y_train, X_test, y_test, kf, scorer):
 
 	return best_estimator, best_params, best_score
 
+# def compare_models(models, X_train, y_train, X_test, y_test, kf, scorer):
+# 	print("-" * 25)
+# 	print("COMPARING MODELS...")
+# 	print("-" * 25)
 
-class ModelSelection():
-	def __init__(self, X_train, y_train, X_test, y_test, kf, scorer) -> None:
-		self.X_train = X_train 
-		self.y_train = y_train
-		self.X_test = X_test 
-		self.y_test = y_test 
-		self.kf = kf
-		self.scorer = scorer
-
-		
-	def perform_bayesian_search(self, model, hyperparameters, n_iter):
-		self.bayesian_search = BayesSearchCV(
-			estimator=model, 
-			search_spaces=hyperparameters, 
-			cv=self.kf, 
-			scoring=self.scorer, 
-			refit=True,
-			n_iter=n_iter, 
-			n_jobs=-1,
-			random_state=42
-		)
-
-		def status_print(optim_results):
-			# get all models tested so far
-			all_models = pd.DataFrame(self.bayesian_search.cv_results_)
-
-			# get current parameters and the best parameters
-			best_params = pd.Series(self.bayesian_search.best_params_)
-
-			print('Model #{}\nBest score: {}\nBest params: {}\n'.format(
-				len(all_models),
-				np.round(self.bayesian_search.best_score_, 3),
-				self.bayesian_search.best_params_
-			))
-
-
-		self.bayesian_search.fit(self.X_train, self.y_train)
-		best_score = self.bayesian_search.score(self.X_test, self.y_test)
-
-		return self.bayesian_search.best_estimator_, self.bayesian_search.best_params_, -best_score
-
+# 	print("+" * 25)
+# 	print("Linear Regression")
+# 	print("+" * 25)
 	
-	def test_model(self, model, name):
-		best_estimator, best_params, best_score = perform_bayesian_search(
-			model=model["instance"], 
-			hyperparameters=model["hyperparameters"], 
-			n_iter=model["n_iter"],
-			X_train=self.X_train, 
-			y_train=self.y_train, 
-			X_test=self.X_test, 
-			y_test=self.y_test, 
-			kf=self.kf,
-			scorer=self.scorer
-		)
+# 	lr_score = linreg(X_train, y_train, X_test, y_test, kf, scorer)
+	
+# 	print("Linear Regression RMSE: {:.3f}".format(lr_score))
 
-		val_param_name = model["validation_param"]
-		val_param_range = model["hyperparameters"][val_param_name]
+# 	for model_name, model_params in models.items():
+# 		best_estimator, best_params, best_score = perform_halving_random_search(
+# 			model=model_params["instance"],
+# 			hyperparameters=model_params["hyperparameters"],
+# 			X_train=X_train, 
+# 			y_train=y_train, 
+# 			X_test=X_test, 
+# 			y_test=y_test,
+# 			kf=kf,
+# 			scorer=scorer
+# 		)
 
-		print("{} RMSE: {:.3f}".format(name, best_score))
+# 		print("+" * 25)
+# 		print(model_name)
+# 		print("+" * 25)
 
-		return best_estimator, best_params, best_score
+# 		print(best_params)
+
+# 		val_param_name = model_params["validation_param"]
+# 		val_param_range = model_params["hyperparameters"][val_param_name]
+
+# 		evaluate_model(best_estimator, model_name, X_train, y_train, X_test, y_test, kf, scorer)
+# 		validate_model(best_estimator, model_name, val_param_name, val_param_range, X_train, y_train, X_test, y_test, kf, scorer)
+
+# 		print("{} RMSE: {:.3f}".format(model_name, best_score))
