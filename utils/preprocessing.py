@@ -119,7 +119,7 @@ def remove_outliers(X_train, y_train, columns):
 
 	return X_train, y_train
 
-def standardize(X_train, X_test):
+def standardize(X_train, X_test, X2):
 	standard_scaler = StandardScaler()
 
 	# fit the scaler on training dataset
@@ -127,10 +127,12 @@ def standardize(X_train, X_test):
 
 	# apply the scaler on testing dataset (and so avoid introducing bias)
 	X_test_scaled = standard_scaler.transform(X_test)
+	X2_scaled = standard_scaler.transform(X2)
 
 	# should do the same on X2 
 
 	X_train = pd.DataFrame(X_train_scaled, columns=X_train.columns, index=X_train.index)
 	X_test = pd.DataFrame(X_test_scaled, columns=X_test.columns, index=X_test.index)
+	X2 = pd.DataFrame(X2_scaled, columns=X2.columns, index=X2.index)
 
-	return X_train, X_test, standard_scaler
+	return X_train, X_test, X2, standard_scaler

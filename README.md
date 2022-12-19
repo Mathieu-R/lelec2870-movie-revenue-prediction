@@ -7,5 +7,5 @@ Datasets can be downloaded from this link: https://drive.google.com/drive/folder
 ## Packages
 ```
 $ conda env create -n <envname> --file environment.yml
+$ conda activate <envname>
 ```
-

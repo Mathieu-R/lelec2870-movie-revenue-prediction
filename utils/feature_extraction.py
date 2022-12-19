@@ -28,7 +28,7 @@ def extract_embeddings_features(embeddings):
 
 	return embeddings_matrix
 
-def pca_on_embeddings(train_embeddings_matrix, test_embeddings_matrix, train_index, test_index, prefix, total_variance_explained = 0.95, run_pca=True, non_linear=True):
+def pca_on_embeddings(train_embeddings_matrix, test_embeddings_matrix, X2_embeddings_matrix, train_index, test_index, X2_index, prefix, total_variance_explained = 0.95, run_pca=True, non_linear=True):
 	scaler = StandardScaler()
 
 	n_features_before_pca = len(train_embeddings_matrix[0])
@@ -36,6 +36,7 @@ def pca_on_embeddings(train_embeddings_matrix, test_embeddings_matrix, train_ind
 	# standardize data
 	train_embeddings_matrix = scaler.fit_transform(train_embeddings_matrix)
 	test_embeddings_matrix = scaler.transform(test_embeddings_matrix)
+	X2_embeddings_matrix = scaler.transform(X2_embeddings_matrix)
 
 	if run_pca:
 		if non_linear:
@@ -43,16 +44,20 @@ def pca_on_embeddings(train_embeddings_matrix, test_embeddings_matrix, train_ind
 
 			train_embeddings_matrix = kpca.fit_transform(train_embeddings_matrix)
 			test_embeddings_matrix = kpca.transform(test_embeddings_matrix)
+			X2_embeddings_matrix = kpca.transform(X2_embeddings_matrix)
+
 		else:
 			pca = PCA(n_components=total_variance_explained)
 
 			train_embeddings_matrix = pca.fit_transform(train_embeddings_matrix)
 			test_embeddings_matrix = pca.transform(test_embeddings_matrix)
+			X2_embeddings_matrix = pca.transform(X2_embeddings_matrix)
 
 		print(f"successfully reduced from {n_features_before_pca} features to {len(train_embeddings_matrix[0])} features keeping {total_variance_explained * 100}% of variance explained")
 	
 	
 	train_embeddings_df = pd.DataFrame(train_embeddings_matrix, index=train_index).add_prefix(prefix)
 	test_embeddings_df = pd.DataFrame(test_embeddings_matrix, index=test_index).add_prefix(prefix)
+	X2_embeddings_matrix = pd.DataFrame(X2_embeddings_matrix, index=X2_index).add_prefix(prefix)
 
-	return train_embeddings_df, test_embeddings_df
+	return train_embeddings_df, test_embeddings_df, X2_embeddings_matrix
