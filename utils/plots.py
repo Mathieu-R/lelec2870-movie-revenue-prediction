@@ -10,7 +10,7 @@ import matplotlib.pyplot as plt
 
 from sklearn.feature_selection import mutual_info_regression
 
-from sklearn.model_selection import train_test_split, KFold, GridSearchCV, RandomizedSearchCV, cross_val_predict, validation_curve, learning_curve, HalvingRandomSearchCV
+from sklearn.model_selection import train_test_split, KFold, GridSearchCV, RandomizedSearchCV, cross_val_predict, validation_curve, learning_curve
 
 from utils.feature_selection import get_discrete_features_mask
 
