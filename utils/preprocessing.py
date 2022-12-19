@@ -3,9 +3,11 @@ import numpy as np
 
 import category_encoders as ce
 
+from scipy.stats import zscore
+
 from sklearn.preprocessing import StandardScaler, LabelEncoder
 
-def preprocess_duplicated_and_missing(df):
+def preprocess_duplicated_and_missing(df, train):
 	# drop duplicated values
 	df.drop_duplicates(subset=df.columns.difference(["revenues"]), keep="first", inplace=True)
 
@@ -14,7 +16,8 @@ def preprocess_duplicated_and_missing(df):
 
 	# impute observations with missing runtime (because > 5% of missing values)
 	# replace by the mean (since runtime feature is not too for from a Gaussian)
-	df["runtime"].fillna(df["runtime"].mean(), inplace=True)
+	# use only the data from the "train set" (X1.csv) in order to avoid data leakage
+	df["runtime"].fillna(train["runtime"].mean(), inplace=True)
 
 	print("[X] Removing duplicated and missing values")
 	return df
@@ -107,8 +110,14 @@ def other_fixes(df):
 	print("[X] Minor fixes")
 	return df
 
-def remove_outliers(X_train):
-	pass
+def remove_outliers(X_train, y_train, columns):
+	z_score = np.abs(zscore(X_train[columns]))
+	filtered_entries = (z_score < 3).all(axis=1)
+
+	X_train = X_train[filtered_entries]
+	y_train = y_train[filtered_entries]
+
+	return X_train, y_train
 
 def standardize(X_train, X_test):
 	standard_scaler = StandardScaler()

@@ -15,10 +15,9 @@ import numpy as np
 
 from sklearn.feature_selection import f_regression, mutual_info_regression
 from sklearn.feature_selection import SelectKBest, SelectPercentile
-from sklearn.feature_selection import RFE
+from sklearn.feature_selection import RFECV
 
-from sklearn.linear_model import LassoCV
-from sklearn.ensemble import RandomForestRegressor, GradientBoostingRegressor
+from sklearn.ensemble import RandomForestRegressor
 
 def get_discrete_features_mask(X_train):
 	CONTINUOUS_FEATURES = ["ratings", "n_votes", "production_year", "runtime", "release_year","studio"]
@@ -53,7 +52,7 @@ def mrmr(X_train, y_train):
 	X_train_copy = X_train.copy()
 	y_train_copy = y_train.copy()
 
-	# relevancy of input features with the target
+	# relevancy of input features with the continuous target
 	relevancies = mutual_info_regression(X_train_copy, y_train_copy)
 
 	redundancies = []
@@ -116,7 +115,7 @@ def normalize_mutual_information_matrix(MI_matrix):
 	
 	return MI_matrix
 
-def select_features_MI(X_train, y_train, X_test, percentile=80):
+def select_features_MI_percentile(X_train, y_train, X_test, percentile=80):
 	print("-" * 25)
 	print("FEATURE SELECTION (MUTUAL INFORMATION)...")
 	print("-" * 25)
@@ -135,36 +134,42 @@ def select_features_MI(X_train, y_train, X_test, percentile=80):
 	
 	return X_train_filtered, X_test_filtered
 
-def select_features_RFE(X_train, y_train, X_test):
+def select_features_MI_kbest(X_train, y_train, X_test, k=20):
+	print("-" * 25)
+	print("FEATURE SELECTION (MUTUAL INFORMATION)...")
+	print("-" * 25)
+	
+	# select k best features according to MI
+	k_best = SelectKBest(score_func=mutual_info_regression, k=k)
+	X_train_filtered = k_best.fit_transform(X_train, y_train)
+	X_test_filtered = k_best.transform(X_test)
+
+	best_features = k_best.get_feature_names_out()
+
+	X_train_filtered = pd.DataFrame(X_train_filtered, columns=best_features, index=X_train.index)
+	X_test_filtered = pd.DataFrame(X_test_filtered, columns=best_features, index=X_test.index)
+
+	print(f"reduced from {X_train.shape[1]} features to {X_train_filtered.shape[1]} features")
+	
+	return X_train_filtered, X_test_filtered
+
+def select_features_RFECV(X_train, y_train, X_test, kf, scorer):
 	print("-" * 25)
 	print("FEATURE SELECTION (RANDOM FEATURE ELIMINATION)...")
 	print("-" * 25)
 
-	lcv = LassoCV()
-	lcv.fit(X_train, y_train)
+	all_features = X_train.columns.tolist()
+	print(all_features)
 
-	lcv_mask = lcv.coef_ != 0
-	lcv_k_features_keeped = sum(lcv_mask)
-	#print(lcv.score(X_test, y_test))
+	rf = RandomForestRegressor(random_state=42)
 
-	rf = RandomForestRegressor()
-	rfe_rf = RFE(rf, n_features_to_select=lcv_k_features_keeped, step=5, verbose=False)
-	rfe_rf.fit(X_train, y_train)
+	rfe = RFECV(rf, cv=kf, scoring=scorer)
+	rfe.fit(X_train, y_train)
 
-	rf_mask = rfe_rf.support_
+	selected_features = np.array(all_features)[rfe.get_support()]
+	print(selected_features)
 
-	gb = GradientBoostingRegressor()
-	rfe_gb = RFE(gb, n_features_to_select=lcv_k_features_keeped, step=5, verbose=False)
-	rfe_gb.fit(X_train, y_train)
-
-	gb_mask = rfe_gb.support_
-
-	votes = np.sum([lcv_mask, rf_mask, gb_mask], axis=0)
-	votes_mask = votes >= 2
-
-	X_train_filtered = X_train.loc[:, votes_mask]
-	X_test_filtered = X_test.loc[:, votes_mask]
-
-	print(f"reduced from {X_train.shape[1]} features to {X_train_filtered.shape[1]} features")
+	X_train_filtered = X_train[selected_features]
+	X_test_filtered = X_test[selected_features]
 
 	return X_train_filtered, X_test_filtered

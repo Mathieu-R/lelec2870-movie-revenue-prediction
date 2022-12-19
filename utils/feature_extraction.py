@@ -4,8 +4,6 @@ import pandas as pd
 from sklearn.preprocessing import StandardScaler
 from sklearn.decomposition import PCA, KernelPCA
 
-from mlxtend.feature_extraction import RBFKernelPCA as KPCA
-
 from tqdm import tqdm_notebook
 
 import ast
@@ -41,12 +39,15 @@ def pca_on_embeddings(train_embeddings_matrix, test_embeddings_matrix, train_ind
 
 	if run_pca:
 		if non_linear:
-			pca = KernelPCA(n_components=total_variance_explained)
+			kpca = KernelPCA(n_components=2, kernel="rbf")
+
+			train_embeddings_matrix = kpca.fit_transform(train_embeddings_matrix)
+			test_embeddings_matrix = kpca.transform(test_embeddings_matrix)
 		else:
 			pca = PCA(n_components=total_variance_explained)
 
-		train_embeddings_matrix = pca.fit_transform(train_embeddings_matrix)
-		test_embeddings_matrix = pca.transform(test_embeddings_matrix)
+			train_embeddings_matrix = pca.fit_transform(train_embeddings_matrix)
+			test_embeddings_matrix = pca.transform(test_embeddings_matrix)
 
 		print(f"successfully reduced from {n_features_before_pca} features to {len(train_embeddings_matrix[0])} features keeping {total_variance_explained * 100}% of variance explained")
 	
