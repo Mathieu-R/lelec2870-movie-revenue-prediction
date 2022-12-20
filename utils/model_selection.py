@@ -53,14 +53,16 @@ class ModelSelection():
 		self.kf = kf
 		self.scorer = scorer
 
-		
 	def perform_bayesian_search(self, model, hyperparameters, n_iter):
 		self.bayesian_search = BayesSearchCV(
 			estimator=model, 
 			search_spaces=hyperparameters, 
 			cv=self.kf, 
 			scoring=self.scorer, 
+			# allows to compute a score on the test data
 			refit=True,
+			# include training scores in cv_results_
+			return_train_score=True, 
 			n_iter=n_iter, 
 			n_jobs=-1,
 			random_state=42
@@ -81,23 +83,18 @@ class ModelSelection():
 
 
 		self.bayesian_search.fit(self.X_train, self.y_train)
-		best_score = self.bayesian_search.score(self.X_test, self.y_test)
+		test_score = -self.bayesian_search.score(self.X_test, self.y_test)
 
-		print(best_score)
+		return self.bayesian_search
 
-		return self.bayesian_search.best_estimator_, self.bayesian_search.best_params_, -best_score
+		return self.bayesian_search.best_estimator_, self.bayesian_search.best_params_, -test_score
 
 	
 	def test_model(self, model, name):
-		best_estimator, best_params, best_score = self.perform_bayesian_search(
+		searcher = self.perform_bayesian_search(
 			model=model["instance"], 
 			hyperparameters=model["hyperparameters"], 
 			n_iter=model["n_iter"]
 		)
 
-		val_param_name = model["validation_param"]
-		val_param_range = model["hyperparameters"][val_param_name]
-
-		print("{} RMSE: {:.3f}".format(name, best_score))
-
-		return best_estimator, best_params, best_score
+		return searcher
