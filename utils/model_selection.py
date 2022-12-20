@@ -28,22 +28,6 @@ def linreg(X_train, y_train, X_test, y_test, kf, scorer = "neg_mean_squared_erro
 	#return rmse
 	return mean_val_score, rmse, r2
 
-def perform_grid_search(model, hyperparameters, X_train, y_train, X_test, y_test, kf, scorer = "neg_mean_squared_error"):
-	grid_search = GridSearchCV(estimator=model, param_grid=hyperparameters, cv=kf, scoring=scorer, n_jobs=-1, error_score='raise')
-
-	grid_search.fit(X_train, y_train)
-	best_score = grid_search.score(X_test, y_test)
-
-	return grid_search.best_estimator_, grid_search.best_params_, -best_score
-
-def perform_random_search(model, hyperparameters, n_iter, X_train, y_train, X_test, y_test, kf, scorer = "neg_mean_squared_error"):
-	random_search = RandomizedSearchCV(estimator=model, param_distributions=hyperparameters, n_iter=n_iter, cv=kf, scoring=scorer, n_jobs=-1, error_score="raise")
-
-	random_search.fit(X_train, y_train)
-	best_score = random_search.score(X_test, y_test)
-
-	return random_search.best_estimator_, random_search.best_params_, -best_score
-
 class ModelSelection():
 	def __init__(self, X_train, y_train, X_test, y_test, kf, scorer) -> None:
 		self.X_train = X_train 
@@ -53,48 +37,44 @@ class ModelSelection():
 		self.kf = kf
 		self.scorer = scorer
 
-	def perform_bayesian_search(self, model, hyperparameters, n_iter):
+	def perform_search(self, model, search_type):
+		if search_type == "gs":
+			return self.perform_grid_search(model)
+		elif search_type == "bs":
+			return self.perform_bayesian_search(model)
+		else:
+			print("Unknown search type...")
+
+	def perform_bayesian_search(self, model):
 		self.bayesian_search = BayesSearchCV(
-			estimator=model, 
-			search_spaces=hyperparameters, 
+			estimator=model["instance"], 
+			search_spaces=model["hyperparameters"], 
 			cv=self.kf, 
 			scoring=self.scorer, 
 			# allows to compute a score on the test data
 			refit=True,
 			# include training scores in cv_results_
 			return_train_score=True, 
-			n_iter=n_iter, 
+			n_iter=model["n_iter"], 
 			n_jobs=-1,
 			random_state=42
 		)
 
-		# def status_print(optim_results):
-		# 	# get all models tested so far
-		# 	all_models = pd.DataFrame(self.bayesian_search.cv_results_)
-
-		# 	# get current parameters and the best parameters
-		# 	best_params = pd.Series(self.bayesian_search.best_params_)
-
-		# 	print('Model #{}\nBest score: {}\nBest params: {}\n'.format(
-		# 		len(all_models),
-		# 		np.round(self.bayesian_search.best_score_, 3),
-		# 		self.bayesian_search.best_params_
-		# 	))
-
-
 		self.bayesian_search.fit(self.X_train, self.y_train)
-		test_score = -self.bayesian_search.score(self.X_test, self.y_test)
-
 		return self.bayesian_search
-
-		return self.bayesian_search.best_estimator_, self.bayesian_search.best_params_, -test_score
-
 	
-	def test_model(self, model, name):
-		searcher = self.perform_bayesian_search(
-			model=model["instance"], 
-			hyperparameters=model["hyperparameters"], 
-			n_iter=model["n_iter"]
+	def perform_grid_search(self, model):
+		self.grid_search = GridSearchCV(
+			estimator=model["instance"], 
+			param_grid=model["hyperparameters"], 
+			cv=self.kf, 
+			scoring=self.scorer, 
+			# allows to compute a score on the test data
+			refit=True,
+			# include training scores in cv_results_
+			return_train_score=True,
+			n_jobs=-1,
 		)
 
-		return searcher
+		self.grid_search.fit(self.X_train, self.y_train)
+		return self.grid_search
