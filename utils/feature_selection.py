@@ -56,7 +56,7 @@ def mrmr(X_train, y_train):
 	relevancies = mutual_info_regression(X_train_copy, y_train_copy)
 
 	redundancies = []
-	for index, data in X_train_copy.iteritems():
+	for index, data in X_train_copy.items():
 		# redundancy of input feature "i" with all other input features
 		target = X_train_copy.loc[:, index]
 		input = X_train_copy.drop(columns=index)
@@ -71,8 +71,6 @@ def mrmr(X_train, y_train):
 	sorted_columns = X_train.columns[idx_sorted].values
 
 	return sorted_scores, sorted_columns
-
-
 
 def get_mutual_information_matrix(X_train):
 	p = len(X_train.columns)

@@ -40,6 +40,8 @@ class ModelSelection():
 	def perform_search(self, model, search_type):
 		if search_type == "gs":
 			return self.perform_grid_search(model)
+		elif search_type == "rs":
+			return self.random_search(model)
 		elif search_type == "bs":
 			return self.perform_bayesian_search(model)
 		else:
@@ -62,6 +64,24 @@ class ModelSelection():
 
 		self.bayesian_search.fit(self.X_train, self.y_train)
 		return self.bayesian_search
+
+	def perform_random_search(self, model):
+		self.random_search = RandomizedSearchCV(
+			estimator=model["instance"], 
+			param_distributions=model["hyperparameters"], 
+			cv=self.kf, 
+			scoring=self.scorer, 
+			# allows to compute a score on the test data
+			refit=True,
+			# include training scores in cv_results_
+			return_train_score=True,
+			n_iter=model["n_iter"], 
+			n_jobs=-1,
+			random_state=42
+		)
+
+		self.random_search(self.X_train, self.y_train)
+		return self.random_search
 	
 	def perform_grid_search(self, model):
 		self.grid_search = GridSearchCV(

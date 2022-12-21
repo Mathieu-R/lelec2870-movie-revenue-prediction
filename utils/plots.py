@@ -44,7 +44,7 @@ def plot_mutual_information_with_target(X_train, y_train):
 	MI = MI_with_target[idx_sorted]
 	columns = X_train.columns[idx_sorted].values
 
-	sns.barplot(MI, columns)
+	sns.barplot(x=MI, y=columns)
 
 def plot_residuals(model, X_train, y_train, X_test, y_test):
 	y_train_pred = model.predict(X_train)
