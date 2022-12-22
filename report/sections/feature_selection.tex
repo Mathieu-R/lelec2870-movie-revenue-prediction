@@ -8,20 +8,6 @@ We first tried to remove redundant features. The idea was to check the features 
 
 We chose to use the mutual information to select the features. Mutual information has the advantage over correlation to detect nonlinear relationships between variables and therefore is a filter of choice for nonlinear models. Our strategy was to minimize the redundancy between inputs variables and a maximize relevancy between inputs variables and the target variable (\textit{minimum redundancy, maximum relevance}). The idea is that even if $2$ features are highly relevant, we shouldn't add both of them to our subset of features if they are highly correlated since it would increase the model complexity and could cause overfitting.
 
-To minimize the redundancy, we computed a normalized mutual information matrix and decided to remove for each group of redundant features, the feature that share the less information with the target. As you can see on the heatmap below, \textit{release_year} shares a lot information with \textit{production_year}. \textit{img_feature1} shares also a significant amount of information with \textit{text_feature0}. Looking at the mutual information of each feature with the target variable, we decided to remove \textit{production_year} and \textit{text_feature0} since they share less information with the target.
-
-\begin{figure}[H]
-	\centering
-	\includegraphics{figures/mi_matrix.tex}
-	\caption{Mutual information matrix}
-	\label{fig:mi_matrix}
-\end{figure}
-
-\begin{figure}[H]
-	\centering
-	\includegraphics{figures/mi_with_target.tex}
-	\caption{Mutual information of each feature with the target variable (revenues)}
-	\label{fig:MI_with_target}
-\end{figure}
+To minimize the redundancy, we computed a normalized mutual information matrix\ref{fig:mi_matrix} and decided to remove for each group of redundant features, the feature that share the less information with the target. As you can see on the heatmap\ref{fig:mi_matrix} in the appendix, \textit{release\_year} shares a lot information with \textit{production\_year}. \textit{img\_feature1} shares also a significant amount of information with \textit{text\_feature0}. Looking at the mutual information of each feature with the target variable\ref{fig:mi_with_target}, we decided to remove \textit{production\_year} and \textit{text\_feature0} since they share less information with the target.
 
 Finally, we decided to test a set of different numbers of features to select our model. We tried to keep respectively the $5$, $10$, $15$, $20$ and $30$ best features that shares the most information with the target.
