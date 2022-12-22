@@ -31,18 +31,18 @@ def plot_correlation_matrix(X_train):
 
 
 def plot_mutual_information_matrix(X_train, MI_matrix):
-    fig = plt.subplots(figsize=(set_size_square_plot(width="full-size")))
+    fig, ax = plt.subplots(1, 1, figsize=(30,30))
 
     MI_df = pd.DataFrame(
         MI_matrix, columns=X_train.columns, index=X_train.columns)
 
     mask = np.triu(np.ones_like(MI_df, dtype=bool))
 
-    sns.heatmap(MI_df, mask=mask, cmap=plt.cm.Reds, vmin=0, vmax=1, center=0)
+    sns.heatmap(MI_df, mask=mask, cmap=plt.cm.Reds, vmin=0, vmax=1, center=0, ax=ax)
 
 
 def plot_mutual_information_with_target(X_train, y_train):
-    fig = plt.subplots(figsize=(set_size_square_plot(width="full-size")))
+    fig = plt.subplots(figsize=(15,30))
 
     MI_with_target = mutual_info_regression(X_train, y_train)
     idx_sorted = np.argsort(MI_with_target)[::-1]

@@ -15,11 +15,41 @@ A third approach and the one we tried in this project is to perform a \textbf{Ba
 
 The linear regression has no hyperparameters to tune so we just ran a cross-validation for each set of features we decided to keep. The results show us that ... 
 
-% TODO: show table
+\begin{table}[H]
+	\centering
+	\begin{tabular}{ccc} \toprule
+	  & \multicolumn {2}{c}{scores} \\\cmidrule(lr) {2-3}
+	  \#features         & validation rmse (\$)             & test rmse (\$) \\\hline
+	  $5$        		& $7.986e07$                      	& $8.618e07$ \\
+	  $10$        		& $8.874e07$                        & $8.905e07$ \\
+	  $15$        		& $8.491e07$                        & $8.764e07$ \\
+	  $20$             	& $7.134e07$                        & $7.875e07$ \\
+	  $30$             	& $6.980e07$                        & $7.701e07$ \\
+	  \\\hline
+	\end{tabular}
+	\caption{Cross-validation results of linear regression model}
+	\label{tab:linear-regression-results}
+\end{table}
 
 \subsection{K-Nearest Neighbors}
 
-For the K-Nearest Neighbors model, we need to take care of adjusting the number of neighbors hyperparameter. Indeed, a value too low will induce overfitting and a value too high will induce underfitting. 
+For the K-Nearest Neighbors model, we need to take care of adjusting the number of neighbors hyperparameter. Indeed, a value too low will induce overfitting and a value too high will induce underfitting. We ran a bayesian search with $12$ iterations.
+
+\begin{table}[H]
+	\centering
+	\begin{tabular}{ccc} \toprule
+	  & \multicolumn {2}{c}{scores} \\\cmidrule(lr) {2-3}
+	  \#features         & validation rmse (\$)             & test rmse (\$) \\\hline
+	  $5$        		& $6.357e07$                      	& $7.738e07$ \\
+	  $10$        		& $6.236e07$                        & $7.404e07$ \\
+	  $15$        		& $6.172e07$                        & $7.455e07$ \\
+	  $20$             	& $6.341e07$                        & $7.281e07$ \\
+	  $30$             	& $6.386e07$                        & $7.226e07$ \\
+	  \\\hline
+	\end{tabular}
+	\caption{Cross-validation results of K-Nearest Neighbors model}
+	\label{tab:knn-results}
+\end{table}
 
 \subsection{Multi-Layer Perceptron}
 
