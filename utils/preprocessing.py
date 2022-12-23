@@ -22,6 +22,18 @@ def preprocess_duplicated_and_missing(df, train):
 	print("[X] Removing duplicated and missing values")
 	return df
 
+def preprocess_duplicated_and_missing_test_set(df, train):
+	# replace missing genres with "[]"
+	df["genres"].fillna("[]", inplace=True)
+
+	# impute observations with missing runtime (because > 5% of missing values)
+	# replace by the mean (since runtime feature is not too for from a Gaussian)
+	# use only the data from the "train set" (X1.csv) in order to avoid data leakage
+	df["runtime"].fillna(train["runtime"].mean(), inplace=True)
+
+	print("[X] impute missing values (X2 set)")
+	return df
+
 def preprocess_irrelevant_features(df):
 	# drop `img_url` and `description` since we have the embeddings
 	df.drop(["img_url", "description"], axis=1, inplace=True)
@@ -141,8 +153,6 @@ def standardize(X_train, X_test, X2):
 	# apply the scaler on testing dataset (and so avoid introducing bias)
 	X_test_scaled = standard_scaler.transform(X_test)
 	X2_scaled = standard_scaler.transform(X2)
-
-	# should do the same on X2 
 
 	X_train = pd.DataFrame(X_train_scaled, columns=X_train.columns, index=X_train.index)
 	X_test = pd.DataFrame(X_test_scaled, columns=X_test.columns, index=X_test.index)

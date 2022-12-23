@@ -26,7 +26,7 @@ def linreg(X_train, y_train, X_test, y_test, kf, scorer = "neg_mean_squared_erro
 	r2 = r2_score(y_true=y_test, y_pred=y_pred)
 
 	#return rmse
-	return mean_val_score, rmse, r2
+	return mean_val_score, rmse, r2, lr
 
 class ModelSelection():
 	def __init__(self, X_train, y_train, X_test, y_test, kf, scorer) -> None:

@@ -69,23 +69,31 @@ def plot_residuals(model, X_train, y_train, X_test, y_test):
     plt.show()
 
 
-def plot_predictions(model, X_train, y_train, X_test, y_test):
-    y_train_pred = model.predict(X_train)
-    y_test_pred = model.predict(X_test)
+def plot_predictions(model, estimator, X_train, y_train, X_test, y_test):
+    y_train_pred = estimator.predict(X_train)
+    y_test_pred = estimator.predict(X_test)
 
     plt.scatter(y_train_pred, y_train, c="blue",
                 marker="s", label="Training data")
     plt.scatter(y_test_pred, y_test, c="lightgreen",
                 marker="s", label="Testing data")
-    plt.title("Linear regression")
+
+
+    p1_train = max(max(y_train_pred), max(y_train))
+    p2_train = min(min(y_train_pred), min(y_train))
+    plt.plot([p1_train, p2_train], [p1_train, p2_train], 'b-')
+
+    p1_test = max(max(y_test_pred), max(y_test))
+    p2_test = min(min(y_test_pred), min(y_test))
+    plt.plot([p1_test, p2_test], [p1_test, p2_test], 'g-')
+
+    plt.title(model["name"])
     plt.xlabel("Predicted values")
     plt.ylabel("Real values")
     plt.legend(loc="upper left")
     plt.plot([10.5, 13.5], [10.5, 13.5], c="red")
+    plt.axis("equal")
     plt.show()
-
-# to know how many data you need
-
 
 def evaluate_model(model, model_name, X_train, y_train, X_test, y_test, kf, scorer):
     model.fit(X_train, y_train)

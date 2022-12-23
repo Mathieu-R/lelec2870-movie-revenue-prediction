@@ -1,15 +1,19 @@
 \section{Model selection}
 
-We tried severall models: linear regression, K-nearest neightbors (KNN), multi-layer perceptron and a random forest. For each model except the linear regression, we choosed to tweak severall well chosen hyperparameters and used a searching algorithm along with cross-validation (5 folds) to find the best hyperparameters for each model. A common searching algorithm is \textbf{Grid Search} that will test every possible combination of hyperparameters. However, it can be computationaly intensive if the search space is wide which is often the case since we don't want to miss the optimal parameters. Another approach is to use \textbf{Random Search}. With this approach, we can also draw hyperparameter configurations from distributions besides discrete sets and the random search will randomly select a combination of hyperparameters among the ones defined instead of doing an exhaustive search. It allows to explore a wide range of hyperparameter configurations with time-efficiency. Looking at the result of the random search, we can identify the area where the results are promising, tighten our ranges and perform a random search again. Although this algorithm being less computationaly intensive, it can be time consuming of running and running again the random search to find the best set of hyperparameters. 
+We tried severall models: linear regression, K-nearest neightbors (KNN), multi-layer perceptron and a random forest. For each model except the linear regression, we choosed to tweak severall well chosen hyperparameters and used a searching algorithm along with cross-validation (5 folds) to find the best hyperparameters for each model. We used the well known \textbf{Grid Search} despite having tested other searching algorithms like \textbf{Random Search} and \textbf{Bayesian Search}. These last two have lower computational cost due to the fact they make less iterations (the number of iterations is chosen by the user) while finding a good model. However the results were not convincing so we decided to stick with Grid Search. 
 
-\begin{figure}[H]
-	\centering
-	\includegraphics{figures/grid_search_vs_random_search.png}
-	\caption{Comparison of grid search and randomized for sampling $9$ different hyperparameter configurations}
-	\label{fig:gridsearch_vs_randomsearch}
-\end{figure}
+For each model, we run a 5-fold cross-validation to avoid overfitting and we compute the validation score as well as the test score that's been computed on a part of the $X_1$ dataset that has not been used to train any of our models.
 
-A third approach and the one we tried in this project is to perform a \textbf{Bayesian Search} which is basically similar to random search but modelise the hyperparameters space probabilisticly to optimize the research of the best set of hyperparameters. For each model, we run a 5-fold cross-validation to avoid overfitting and we compute the validation score as well as the test score that's been computed on a part of the $X_1$ dataset that has not been used to train any of our models.
+% A common searching algorithm is \textbf{Grid Search} that will test every possible combination of hyperparameters. However, it can be computationaly intensive if the search space is wide which is often the case since we don't want to miss the optimal parameters. Another approach is to use \textbf{Random Search}. With this approach, we can also draw hyperparameter configurations from distributions besides discrete sets and the random search will randomly select a combination of hyperparameters among the ones defined instead of doing an exhaustive search. It allows to explore a wide range of hyperparameter configurations with time-efficiency. Looking at the result of the random search, we can identify the area where the results are promising, tighten our ranges and perform a random search again. Although this algorithm being less computationaly intensive, it can be time consuming of running and running again the random search to find the best set of hyperparameters. 
+
+% \begin{figure}[H]
+% 	\centering
+% 	\includegraphics{figures/grid_search_vs_random_search.png}
+% 	\caption{Comparison of grid search and randomized for sampling $9$ different hyperparameter configurations}
+% 	\label{fig:gridsearch_vs_randomsearch}
+% \end{figure}
+
+% A third approach and the one we tried in this project is to perform a \textbf{Bayesian Search} which is basically similar to random search but modelise the hyperparameters space probabilisticly to optimize the research of the best set of hyperparameters. 
 
 \subsection{Linear regression}
 
@@ -33,7 +37,14 @@ The linear regression has no hyperparameters to tune so we just ran a cross-vali
 
 \subsection{K-Nearest Neighbors}
 
-For the K-Nearest Neighbors model, we need to take care of adjusting the number of neighbors hyperparameter. Indeed, a value too low will induce overfitting and a value too high will induce underfitting. We ran a bayesian search with $12$ iterations.
+For the K-Nearest Neighbors model, we need to take care of adjusting the number of neighbors hyperparameter. Indeed, a value too low will induce overfitting and a value too high will induce underfitting. Moreover, because this algorithm suffers a lot from the curse of dimensionnality, we ran it with a smaller subset of features: $[3,5,7,9,11,13,15]$. We grid searched for a number of neighbors between $1$ and $30$.
+
+\begin{figure}[H]
+	\centering
+	\includegraphics{figures/knn_eval.pdf}
+	\caption{RMSE score with respect to the number neighbors for the best K-Nearest Neighbors model}
+	\label{fig:knn_eval}
+\end{figure}
 
 \begin{table}[H]
 	\centering
@@ -53,6 +64,25 @@ For the K-Nearest Neighbors model, we need to take care of adjusting the number 
 
 \subsection{Multi-Layer Perceptron}
 
+Since the multi-layer perceptron has the ability to set weights to zero, we can make the hypothesis that the feature selection will have less influence. Therefore, we wanted to test that model on a greater number of features. We also tested with all the features. We tested different number of layers and neurons per layers as well as different activation functions. The best model found based on the score on the test set contains $40$ features
+
+\begin{figure}[H]
+	\centering
+	\includegraphics{figures/mlp_eval1.pdf}
+	\caption{RMSE score with respect to the number of hidden layers and their sizes for the best multi-layer perceptron model}
+	\label{fig:mlp_eval1}
+\end{figure}
+
+We notice that having too much neurons per layer tends to make this model overfit while too much layers (in fact, more than three) decreases the performances of the multi-layer perceptron. Let's try again with a lower number of neurons per layer.
+
+\begin{figure}[H]
+	\centering
+	\includegraphics{figures/mlp_eval2.pdf}
+	\caption{RMSE score with respect to the number of hidden layers and their sizes for the best multi-layer perceptron model (version with reduced number of neurons per layer)}
+	\label{fig:mlp_eval2}
+\end{figure}
+
+The results are summarised in the following table,
 \begin{table}[H]
 	\centering
 	\begin{tabular}{ccc} \toprule
@@ -69,9 +99,18 @@ For the K-Nearest Neighbors model, we need to take care of adjusting the number 
 	\label{tab:mlp-results}
 \end{table}
 
+We find that our best model has ...
+
 \subsection{Random Forest}
 
 A random forest is an ensemble technique that combines multiple decision trees. As a consequence, it has a better generalization performance than a single decision tree due to randomness which decrease the model's variance. Another thing to note is that it is little sensitive to outliers and do not require much hyperparameters tuning.
+
+\begin{figure}[H]
+	\centering
+	\includegraphics{figures/rf_eval.pdf}
+	\caption{RMSE score with respect to the number trees for the best random forest model}
+	\label{fig:rf_eval}
+\end{figure}
 
 \begin{table}[H]
 	\centering
