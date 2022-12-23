@@ -1,3 +1,8 @@
 \section{Conclusion}
 
-The best model we keep to predict the revenues on the X2 dataset is the Multi-Layer Perceptron with $15$ features selected according to mutual information.
+The RMSE is pretty big for all our models but it was pretty much expected since our target variable is distributed over a large range of values and we lack of features that could explain more the target variable (features like budget for example).
+The main challenge was to deal with the embeddings and there are probably clever ways to manage team and obtain better results as a consequence. Our personnal computer have limited computational resources and therefore we did not have the time to fully explore the hyperparameter space of every model.
+
+% TODO: summary table of testing scores
+
+Anyway, if we summarize the results of all our models, the best model that we keep to predict the revenues on the X2 dataset is the Multi-Layer Perceptron with $35$ features selected according to mutual information. Using the score obtained on the testing set, we expect an RMSE of $7.385e07 \$$ on $Y2$.
