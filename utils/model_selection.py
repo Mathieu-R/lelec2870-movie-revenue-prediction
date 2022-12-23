@@ -93,7 +93,8 @@ class ModelSelection():
 			refit=True,
 			# include training scores in cv_results_
 			return_train_score=True,
-			n_jobs=-1,
+			error_score=0,
+			n_jobs=-1
 		)
 
 		self.grid_search.fit(self.X_train, self.y_train)

@@ -53,6 +53,38 @@ For the K-Nearest Neighbors model, we need to take care of adjusting the number 
 
 \subsection{Multi-Layer Perceptron}
 
+\begin{table}[H]
+	\centering
+	\begin{tabular}{ccc} \toprule
+	  & \multicolumn {2}{c}{scores} \\\cmidrule(lr) {2-3}
+	  \#features         & validation rmse (\$)             & test rmse (\$) \\\hline
+	  $5$        		& $6.267e07	$                      	& $8.023e07$ \\
+	  $10$        		& $6.255e07$                        & $7.973e07$ \\
+	  $15$        		& $6.355e07$                        & $7.793e07$ \\
+	  $20$             	& $6.156e07$                        & $8.117e07$ \\
+	  $30$             	& $6.339e07$                        & $7.930e07$ \\
+	  \\\hline
+	\end{tabular}
+	\caption{Cross-validation results of Multi-Layer perceptron model}
+	\label{tab:mlp-results}
+\end{table}
+
 \subsection{Random Forest}
 
 A random forest is an ensemble technique that combines multiple decision trees. As a consequence, it has a better generalization performance than a single decision tree due to randomness which decrease the model's variance. Another thing to note is that it is little sensitive to outliers and do not require much hyperparameters tuning.
+
+\begin{table}[H]
+	\centering
+	\begin{tabular}{ccc} \toprule
+	  & \multicolumn {2}{c}{scores} \\\cmidrule(lr) {2-3}
+	  \#features         & validation rmse (\$)             & test rmse (\$) \\\hline
+	  $5$        		& $6.267e07	$                      	& $8.023e07$ \\
+	  $10$        		& $6.255e07$                        & $7.973e07$ \\
+	  $15$        		& $6.355e07$                        & $7.793e07$ \\
+	  $20$             	& $6.156e07$                        & $8.117e07$ \\
+	  $30$             	& $6.339e07$                        & $7.930e07$ \\
+	  \\\hline
+	\end{tabular}
+	\caption{Cross-validation results of Random Forest model}
+	\label{tab:rf-results}
+\end{table}
