@@ -158,4 +158,16 @@ def standardize(X_train, X_test, X2):
 	X_test = pd.DataFrame(X_test_scaled, columns=X_test.columns, index=X_test.index)
 	X2 = pd.DataFrame(X2_scaled, columns=X2.columns, index=X2.index)
 
-	return X_train, X_test, X2, standard_scaler
+	return X_train, X_test, X2
+
+def standardize2(X_train, X_test, X2):
+	standard_scaler = StandardScaler()
+
+	# fit the scaler on training dataset
+	X_train[["ratings", "n_votes", "production_year", "runtime", "release_year"]] = standard_scaler.fit_transform(X_train[["ratings", "n_votes", "production_year", "runtime", "release_year"]])
+
+	# apply the scaler on testing dataset (and so avoid introducing bias)
+	X_test[["ratings", "n_votes", "production_year", "runtime", "release_year"]] = standard_scaler.transform(X_test[["ratings", "n_votes", "production_year", "runtime", "release_year"]])
+	X2[["ratings", "n_votes", "production_year", "runtime", "release_year"]] = standard_scaler.transform(X2[["ratings", "n_votes", "production_year", "runtime", "release_year"]])
+
+	return X_train, X_test, X2

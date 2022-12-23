@@ -17,18 +17,21 @@ For each model, we run a 5-fold cross-validation to avoid overfitting and we com
 
 \subsection{Linear regression}
 
-The linear regression has no hyperparameters to tune so we just ran a cross-validation for each set of features we decided to keep. The results show us that ... 
+The linear regression has no hyperparameters to tune so we just ran a cross-validation for each set of features we decided to keep. The results show us that the best linear model is the one with the $\textbf{30}$ best features selected.
 
 \begin{table}[H]
 	\centering
 	\begin{tabular}{ccc} \toprule
 	  & \multicolumn {2}{c}{scores} \\\cmidrule(lr) {2-3}
 	  \#features         & validation rmse (\$)             & test rmse (\$) \\\hline
-	  $5$        		& $7.986e07$                      	& $8.618e07$ \\
-	  $10$        		& $8.874e07$                        & $8.905e07$ \\
-	  $15$        		& $8.491e07$                        & $8.764e07$ \\
-	  $20$             	& $7.134e07$                        & $7.875e07$ \\
-	  $30$             	& $6.980e07$                        & $7.701e07$ \\
+	  $5$        		& $1.629e08$                      	& $1.154e08$ \\
+	  $10$        		& $1.009e08$                        & $1.041e08$ \\
+	  $15$        		& $7.850e07$                        & $9.070e07$ \\
+	  $20$             	& $7.166e07$                        & $8.836e07$ \\
+	  $25$             	& $6.813e07$                        & $8.738e07$ \\
+	  $\textbf{30}$     & $\textbf{6.740e07}$               & $\textbf{8.539e07}$ \\
+	  $35$             	& $6.649e07$                        & $8.827e07$ \\
+	  $40$             	& $6.984e07$                        & $8.892e07$ \\
 	  \\\hline
 	\end{tabular}
 	\caption{Cross-validation results of linear regression model}
@@ -37,34 +40,49 @@ The linear regression has no hyperparameters to tune so we just ran a cross-vali
 
 \subsection{K-Nearest Neighbors}
 
-For the K-Nearest Neighbors model, we need to take care of adjusting the number of neighbors hyperparameter. Indeed, a value too low will induce overfitting and a value too high will induce underfitting. Moreover, because this algorithm suffers a lot from the curse of dimensionnality, we ran it with a smaller subset of features: $[3,5,7,9,11,13,15]$. We grid searched for a number of neighbors between $1$ and $30$.
+For the K-Nearest Neighbors model, we need to take care of adjusting the number of neighbors hyperparameter. Indeed, a value too low will induce overfitting and a value too high will induce underfitting. Moreover, because this algorithm suffers a lot from the curse of dimensionnality, we ran it with a smaller subset of features: $[3,5,7,9,11,13,15]$. We grid searched for a number of neighbors between $1$ and $50$ first but as you can see on the figure below, this model overfits with a number of neighbors approximatively less than $7$. Then, its performance slightly decrease as this number increases.
 
 \begin{figure}[H]
 	\centering
 	\includegraphics{figures/knn_eval.pdf}
 	\caption{RMSE score with respect to the number neighbors for the best K-Nearest Neighbors model}
-	\label{fig:knn_eval}
+	\label{fig:knn_eval1}
 \end{figure}
+
+We chose to run this algorithm again but this time starting from $7$ neighbors up to $50$
+
+\begin{figure}[H]
+	\centering
+	\includegraphics{figures/knn_eval2.pdf}
+	\caption{RMSE score with respect to the number neighbors for the best K-Nearest Neighbors model}
+	\label{fig:knn_eval2}
+\end{figure}
+
+You can see the results of this second pass on the following table,
 
 \begin{table}[H]
 	\centering
 	\begin{tabular}{ccc} \toprule
 	  & \multicolumn {2}{c}{scores} \\\cmidrule(lr) {2-3}
 	  \#features         & validation rmse (\$)             & test rmse (\$) \\\hline
-	  $5$        		& $6.357e07$                      	& $7.738e07$ \\
-	  $10$        		& $6.236e07$                        & $7.404e07$ \\
-	  $15$        		& $6.172e07$                        & $7.455e07$ \\
-	  $20$             	& $6.341e07$                        & $7.281e07$ \\
-	  $30$             	& $6.386e07$                        & $7.226e07$ \\
+	  $\textbf{3}$        		& $\textbf{6.614e07}$                      	& $\textbf{8.036e07}$ \\
+	  $5$        		& $6.642e07$                        & $8.166e07$ \\
+	  $7$        		& $6.572e07$                        & $8.124e07$ \\
+	  $9$             	& $6.997e07$                        & $8.481e07$ \\
+	  $11$             	& $6.980e07$                        & $8.541e07$ \\
+	  $13$             	& $7.691e07$                        & $9.440e07$ \\
+	  $15$             	& $7.677e07$                        & $9.440e07$ \\
 	  \\\hline
 	\end{tabular}
 	\caption{Cross-validation results of K-Nearest Neighbors model}
 	\label{tab:knn-results}
 \end{table}
 
+The best model is the one with the $\textbf{3}$ best features and has $8$ neighbors.
+
 \subsection{Multi-Layer Perceptron}
 
-Since the multi-layer perceptron has the ability to set weights to zero, we can make the hypothesis that the feature selection will have less influence. Therefore, we wanted to test that model on a greater number of features. We also tested with all the features. We tested different number of layers and neurons per layers as well as different activation functions. The best model found based on the score on the test set contains $40$ features
+Since the multi-layer perceptron has the ability to set weights to zero, we can make the hypothesis that the feature selection will have less influence. Therefore, we wanted to test that model on a greater number of features. We also tested with all the features. We tested different number of layers and neurons per layers as well as different activation functions. We can observe that two layers gives the best results and adding more layers to the network tends to decrease the model performance.
 
 \begin{figure}[H]
 	\centering
@@ -73,37 +91,28 @@ Since the multi-layer perceptron has the ability to set weights to zero, we can 
 	\label{fig:mlp_eval1}
 \end{figure}
 
-We notice that having too much neurons per layer tends to make this model overfit while too much layers (in fact, more than three) decreases the performances of the multi-layer perceptron. Let's try again with a lower number of neurons per layer.
-
-\begin{figure}[H]
-	\centering
-	\includegraphics{figures/mlp_eval2.pdf}
-	\caption{RMSE score with respect to the number of hidden layers and their sizes for the best multi-layer perceptron model (version with reduced number of neurons per layer)}
-	\label{fig:mlp_eval2}
-\end{figure}
-
 The results are summarised in the following table,
 \begin{table}[H]
 	\centering
 	\begin{tabular}{ccc} \toprule
 	  & \multicolumn {2}{c}{scores} \\\cmidrule(lr) {2-3}
 	  \#features         & validation rmse (\$)             & test rmse (\$) \\\hline
-	  $5$        		& $6.267e07	$                      	& $8.023e07$ \\
-	  $10$        		& $6.255e07$                        & $7.973e07$ \\
-	  $15$        		& $6.355e07$                        & $7.793e07$ \\
-	  $20$             	& $6.156e07$                        & $8.117e07$ \\
-	  $30$             	& $6.339e07$                        & $7.930e07$ \\
+	  $5$        		& $6.674e07$                      	& $8.096e07$ \\
+	  $\textbf{15}$     & $\textbf{6.367e07}$               & $\textbf{7.647e07}$ \\
+	  $25$        		& $6.716e07$                        & $8.272e07$ \\
+	  $35$             	& $6.674e07$                        & $8.637e07$ \\
+	  all             	& $6.739e07$                        & $8.289e07$ \\
 	  \\\hline
 	\end{tabular}
 	\caption{Cross-validation results of Multi-Layer perceptron model}
 	\label{tab:mlp-results}
 \end{table}
 
-We find that our best model has ...
+The best model is the one with the $\textbf{15}$ best features and has its first layer with $100$ neurons and its second layer with $50$ neurons. It uses a $\tanh{\cdot}$ activation function and has a starting learning rate of $0.001$.
 
 \subsection{Random Forest}
 
-A random forest is an ensemble technique that combines multiple decision trees. As a consequence, it has a better generalization performance than a single decision tree due to randomness which decrease the model's variance. Another thing to note is that it is little sensitive to outliers and do not require much hyperparameters tuning.
+A random forest is an ensemble technique that combines multiple decision trees. As a consequence, it has a better generalization performance than a single decision tree due to randomness which decrease the model's variance. Another thing to note is that it is little sensitive to outliers and do not require much hyperparameters tuning. For this model, we performed a \textbf{Bayesian Search} with $30$ iterations. Maybe we didn't find the best model but it still should be a good model. Moreover, considering the number of hyperparameters we wanted to try, it allowed use to win much computational time. 
 
 \begin{figure}[H]
 	\centering
@@ -117,13 +126,15 @@ A random forest is an ensemble technique that combines multiple decision trees. 
 	\begin{tabular}{ccc} \toprule
 	  & \multicolumn {2}{c}{scores} \\\cmidrule(lr) {2-3}
 	  \#features         & validation rmse (\$)             & test rmse (\$) \\\hline
-	  $5$        		& $6.267e07	$                      	& $8.023e07$ \\
-	  $10$        		& $6.255e07$                        & $7.973e07$ \\
-	  $15$        		& $6.355e07$                        & $7.793e07$ \\
-	  $20$             	& $6.156e07$                        & $8.117e07$ \\
-	  $30$             	& $6.339e07$                        & $7.930e07$ \\
+	  $5$        		& $6.390e07	$                      	& $8.131e07$ \\
+	  $10$        		& $6.333e07$                        & $7.785e07$ \\
+	  $15$        		& $6.267e07$                        & $7.816e07$ \\
+	  $\textbf{20}$             	& $\textbf{6.316e07}$                        & $\textbf{7.741e07}$ \\
+	  $25$             	& $6.271e07$                        & $7.774e07$ \\
 	  \\\hline
 	\end{tabular}
 	\caption{Cross-validation results of Random Forest model}
 	\label{tab:rf-results}
 \end{table}
+
+The best model is the one with the $\textbf{20}$ best features. It uses $200$ estimators.
